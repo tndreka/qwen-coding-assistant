@@ -26,21 +26,29 @@ async def generate_response(user_message: str):
         conversation = cl.user_session.get("conversation")
         conversation.append({"role": "user", "content": user_message})
         
-        logger.info(f"Generating response for: {user_message[: 50]}...")
+        logger.info(f"Generating response for:  {user_message[: 50]}...")
         
         response = ollama.chat(
             model=Config.MODEL_NAME,
             messages=conversation
         )
         
+        # DEBUG: Log the full response
+        logger.info(f"Full response: {response}")
+        
+        # FIX: Access response as dictionary
+        assistant_message = response['message']['content']
+        
+        logger. info(f"Assistant message: {assistant_message[:100]}...")
+        
         conversation.append({
             "role": "assistant",
-            "content": response. message. content
+            "content": assistant_message
         })
         
-        return response
+        return assistant_message
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger. error(f"Error:  {e}", exc_info=True)
         raise
 
 @cl.on_message
@@ -51,10 +59,10 @@ async def main(message: cl.Message):
     try:
         ai_response = await generate_response(message.content)
         
-        for token in ai_response.message.content:
-            await response_msg.stream_token(token)
-        
+        # Send the complete response at once
+        response_msg.content = ai_response
         await response_msg.send()
+        
     except Exception as e:
         logger.error(f"Error: {e}")
         await cl.Message(content="❌ Sorry, an error occurred. ").send()
