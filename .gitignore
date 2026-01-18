@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+. venv/
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Chainlit
+.chainlit/
+. files/
+
+# Logs
+*. log
+
+# OS
+.DS_Store
